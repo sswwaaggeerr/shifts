@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Tele2 | График смен — общая база</title>
+    <title>Tele2 | График смен</title>
     <style>
         * {
             margin: 0;
@@ -146,24 +146,6 @@
             display: inline-block;
         }
 
-        .role-switch {
-            background: #1c1c1c;
-            border-radius: 60px;
-            padding: 6px;
-            display: inline-flex;
-            gap: 8px;
-        }
-        .role-btn {
-            background: transparent;
-            color: #cccccc;
-            padding: 8px 24px;
-            border-radius: 60px;
-        }
-        .role-btn.active {
-            background: #2b7e3a;
-            color: white;
-        }
-
         .header-bar {
             display: flex;
             justify-content: space-between;
@@ -247,6 +229,19 @@
             gap: 8px;
             flex-wrap: wrap;
         }
+        .chief-badge {
+            background: #e30613;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-left: 10px;
+        }
+        .employee-selector {
+            background: #1a1a1a;
+            border-radius: 48px;
+            padding: 8px 16px;
+            margin-bottom: 16px;
+        }
         @media (max-width: 800px) {
             .flex-row { flex-direction: column; }
         }
@@ -267,6 +262,10 @@
                 <input type="text" id="loginUsername" placeholder="Логин" style="margin-bottom: 14px;">
                 <input type="password" id="loginPassword" placeholder="Пароль" style="margin-bottom: 20px;">
                 <button id="doLoginBtn" class="btn-primary" style="width:100%">Войти</button>
+                <div style="margin-top: 16px; font-size:12px; color:#666; text-align:center;">
+                    👤 Сотрудник: ivanov / 123<br>
+                    👑 Руководитель: chief / 123
+                </div>
             </div>
             <div id="registerForm" class="hidden">
                 <h3 style="margin-bottom: 20px;">Регистрация</h3>
@@ -290,67 +289,119 @@
         </div>
     </div>
 
-    <!-- Основной интерфейс -->
-    <div id="mainApp" class="hidden">
+    <!-- ========== ИНТЕРФЕЙС РУКОВОДИТЕЛЯ ========== -->
+    <div id="chiefApp" class="hidden">
         <div class="header-bar">
-            <h1>⚡ Tele2 | Управление сменами</h1>
+            <h1>⚡ Tele2 | Управление сменами (Руководитель)</h1>
             <div class="user-info">
-                <span id="userNameDisplay" style="color:white; font-weight:500;"></span>
-                <span id="userRoleBadge" style="background:#2b7e3a; padding:4px 14px; border-radius:40px; font-size:0.7rem;"></span>
-                <button id="logoutBtn" class="btn-secondary">Выйти</button>
+                <span id="chiefUserName" style="color:white; font-weight:500;"></span>
+                <span style="background:#e30613; padding:4px 14px; border-radius:40px; font-size:0.7rem;">Руководитель</span>
+                <button id="logoutBtnChief" class="btn-secondary">Выйти</button>
             </div>
         </div>
 
         <div class="flex-row">
-            <!-- Левая часть (сводка) -->
             <div class="sidebar">
                 <div class="card">
-                    <h3>📊 Сводка (план/факт)</h3>
-                    <div id="summaryStats">—</div>
-                    <button id="exportCSVBtn" class="btn-outline" style="width:100%; margin-top: 20px;">📎 Выгрузить CSV</button>
+                    <h3>📊 Сводка по подразделению</h3>
+                    <div id="chiefSummaryStats">—</div>
+                    <button id="chiefExportCSVBtn" class="btn-outline" style="width:100%; margin-top: 20px;">📎 Выгрузить CSV</button>
                 </div>
                 <div class="card">
                     <h3>ℹ️ Инструкция</h3>
-                    <p style="font-size:0.85rem;">👑 Руководитель: согласовывает смены и отмечает неявки.<br>
-                    👤 Сотрудник: добавляет свои смены.<br>
-                    💾 Все данные общие (сохраняются в браузере).</p>
+                    <p style="font-size:0.85rem;">👑 <strong>Руководитель:</strong><br>
+                    • Зелёная кнопка — согласовать смену (факт)<br>
+                    • Красная кнопка — отметить неявку<br>
+                    • Удалить можно любую смену</p>
                 </div>
             </div>
 
-            <!-- Правая часть (добавление + таблица) -->
             <div class="main-area">
                 <div class="card">
-                    <h3>✏️ Добавить смену</h3>
-                    <div id="scheduleFormArea" style="margin-bottom: 12px;"></div>
+                    <h3>✏️ Добавить смену сотруднику</h3>
+                    <div class="employee-selector">
+                        <label style="color:#ccc;">👥 Выберите сотрудника</label>
+                        <select id="chiefTargetEmployee" style="margin-top: 8px;"></select>
+                    </div>
                     <div style="display: flex; flex-direction: column; gap: 14px;">
-                        <select id="shiftDate"></select>
+                        <select id="chiefShiftDate"></select>
                         <div style="display: flex; gap: 12px;">
-                            <select id="shiftStart" style="flex:1"></select>
-                            <select id="shiftEnd" style="flex:1"></select>
+                            <select id="chiefShiftStart" style="flex:1"></select>
+                            <select id="chiefShiftEnd" style="flex:1"></select>
                         </div>
-                        <button id="addShiftBtn" class="btn-primary">➕ Запланировать</button>
-                        <div id="shiftWarningMsg" style="display:none; background:#2c1a1a; padding:8px; border-radius:20px; font-size:12px; color:#fca5a5;"></div>
+                        <button id="chiefAddShiftBtn" class="btn-primary">➕ Запланировать смену</button>
                     </div>
                 </div>
 
                 <div class="card">
-                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
-                        <h3 style="margin:0;">📋 График сотрудников</h3>
-                        <div class="role-switch">
-                            <button class="role-btn" data-role="employee">👤 Сотрудник</button>
-                            <button class="role-btn" data-role="chief">👑 Руководитель</button>
-                        </div>
-                    </div>
+                    <h3>📋 График всех сотрудников</h3>
                     <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <select id="statusFilter">
+                        <select id="chiefStatusFilter">
                             <option value="all">Все смены</option>
                             <option value="planned">Запланированные</option>
                             <option value="approved">Согласованные</option>
                             <option value="noshow">Неявки</option>
                         </select>
-                        <button id="refreshBtn" class="btn-secondary">🔄 Обновить</button>
+                        <button id="chiefRefreshBtn" class="btn-secondary">🔄 Обновить</button>
                     </div>
-                    <div id="employeesTableContainer">Загрузка...</div>
+                    <div id="chiefEmployeesTableContainer">Загрузка...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== ИНТЕРФЕЙС СОТРУДНИКА ========== -->
+    <div id="employeeApp" class="hidden">
+        <div class="header-bar">
+            <h1>⚡ Tele2 | Мой график смен</h1>
+            <div class="user-info">
+                <span id="employeeUserName" style="color:white; font-weight:500;"></span>
+                <span style="background:#2b7e3a; padding:4px 14px; border-radius:40px; font-size:0.7rem;">Сотрудник</span>
+                <button id="logoutBtnEmployee" class="btn-secondary">Выйти</button>
+            </div>
+        </div>
+
+        <div class="flex-row">
+            <div class="sidebar">
+                <div class="card">
+                    <h3>📊 Моя сводка</h3>
+                    <div id="employeeSummaryStats">—</div>
+                    <button id="employeeExportCSVBtn" class="btn-outline" style="width:100%; margin-top: 20px;">📎 Выгрузить CSV</button>
+                </div>
+                <div class="card">
+                    <h3>ℹ️ Инструкция</h3>
+                    <p style="font-size:0.85rem;">👤 <strong>Сотрудник:</strong><br>
+                    • Добавляйте свои смены<br>
+                    • Отменять можно только запланированные смены<br>
+                    • Согласованные и неявки изменять нельзя</p>
+                </div>
+            </div>
+
+            <div class="main-area">
+                <div class="card">
+                    <h3>✏️ Добавить мою смену</h3>
+                    <div style="display: flex; flex-direction: column; gap: 14px;">
+                        <select id="employeeShiftDate"></select>
+                        <div style="display: flex; gap: 12px;">
+                            <select id="employeeShiftStart" style="flex:1"></select>
+                            <select id="employeeShiftEnd" style="flex:1"></select>
+                        </div>
+                        <button id="employeeAddShiftBtn" class="btn-primary">➕ Запланировать</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📋 Мои смены</h3>
+                    <div style="display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <select id="employeeStatusFilter">
+                            <option value="all">Все мои смены</option>
+                            <option value="planned">Запланированные</option>
+                            <option value="approved">Согласованные</option>
+                            <option value="noshow">Неявки</option>
+                        </select>
+                        <button id="employeeRefreshBtn" class="btn-secondary">🔄 Обновить</button>
+                    </div>
+                    <div id="employeeShiftsTableContainer">Загрузка...</div>
                 </div>
             </div>
         </div>
@@ -358,19 +409,13 @@
 </div>
 
 <script>
-    // ========== ЛОКАЛЬНАЯ БАЗА ДАННЫХ (общая для всех пользователей) ==========
-    // Все данные хранятся в localStorage под одним ключом — это значит,
-    // что все, кто открывают сайт на одном устройстве/браузере, видят одни и те же данные.
-    // Для разных устройств данные будут разные, если не использовать облачный сервер.
-    // Но в рамках одного компьютера/телефона — полная синхронизация между сотрудником и руководителем.
-    
+    // ========== БАЗА ДАННЫХ ==========
     let currentUser = null;
     let allShifts = [];
     let allUsers = [];
     let nextShiftId = 1;
     let nextUserId = 1;
 
-    // Загрузка данных из localStorage
     function loadData() {
         const storedShifts = localStorage.getItem('tele2_shifts');
         const storedUsers = localStorage.getItem('tele2_users');
@@ -387,7 +432,6 @@
             allUsers = JSON.parse(storedUsers);
             nextUserId = Math.max(0, ...allUsers.map(u => u.id), 0) + 1;
         } else {
-            // Создаём демо-пользователей
             allUsers = [
                 { id: 1, login: 'ivanov', password: '123', fullName: 'Сизый Александр Петрович', role: 'employee', alliance: 'Пупкина', group: 'Группа Сизых' },
                 { id: 2, login: 'chief', password: '123', fullName: 'Руководитель отдела', role: 'chief', alliance: 'Пупкина', group: null }
@@ -396,7 +440,6 @@
             saveUsers();
         }
         
-        // Добавим пару тестовых смен, если их нет
         if (allShifts.length === 0) {
             const today = new Date().toISOString().slice(0,10);
             allShifts = [
@@ -406,15 +449,9 @@
         }
     }
     
-    function saveShifts() {
-        localStorage.setItem('tele2_shifts', JSON.stringify(allShifts));
-    }
+    function saveShifts() { localStorage.setItem('tele2_shifts', JSON.stringify(allShifts)); }
+    function saveUsers() { localStorage.setItem('tele2_users', JSON.stringify(allUsers)); }
     
-    function saveUsers() {
-        localStorage.setItem('tele2_users', JSON.stringify(allUsers));
-    }
-    
-    // Справочник сотрудников
     const groupsMap = {
         'Пупкина': ['Группа Сизых', 'Группа Василькова'],
         'Тумбочкина': ['Группа Кузнецовых'],
@@ -449,7 +486,6 @@
         setTimeout(() => t.remove(), 2300);
     }
     
-    // Валидация
     function isValidShift(employeeKey, date, start, end, excludeId = -1) {
         if (!start || !end) return { ok: false, reason: 'Выберите время' };
         let [sh, sm] = start.split(':').map(Number), [eh, em] = end.split(':').map(Number);
@@ -485,17 +521,51 @@
         return Math.max(max, cur);
     }
     
-    function addShift(empKey, empObj, date, start, end) {
-        let valid = isValidShift(empKey, date, start, end);
+    function generateDates(selectId) {
+        let sel = document.getElementById(selectId);
+        if (!sel) return;
+        let today = new Date(); today.setHours(0,0,0,0);
+        sel.innerHTML = '';
+        for (let i = 0; i < 14; i++) {
+            let d = new Date(today); d.setDate(today.getDate() + i);
+            let val = d.toISOString().slice(0,10);
+            let weekdays = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+            sel.appendChild(new Option(`${val} (${weekdays[d.getDay()]})`, val));
+        }
+    }
+    
+    function populateTimes(startSelectId, endSelectId) {
+        let startSel = document.getElementById(startSelectId);
+        let endSel = document.getElementById(endSelectId);
+        if (!startSel || !endSel) return;
+        startSel.innerHTML = '';
+        endSel.innerHTML = '<option value="">-- Конец --</option>';
+        for (let h = 6; h < 24; h++) {
+            for (let m of [0, 15, 30, 45]) {
+                let val = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+                startSel.appendChild(new Option(val, val));
+            }
+        }
+        for (let h = 0; h < 25; h++) {
+            for (let m of [0, 15, 30, 45]) {
+                if (h === 24 && m > 0) continue;
+                let val = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
+                endSel.appendChild(new Option(val, val));
+            }
+        }
+    }
+    
+    // ========== РУКОВОДИТЕЛЬ ==========
+    function chiefAddShift(employeeKey, employeeObj, date, start, end) {
+        let valid = isValidShift(employeeKey, date, start, end);
         if (!valid.ok) { alert(valid.reason); return false; }
-        if (getConsecutive(empKey, date) > 6) { alert('❌ Более 6 смен подряд'); return false; }
-        
+        if (getConsecutive(employeeKey, date) > 6) { alert('❌ Более 6 смен подряд'); return false; }
         allShifts.push({
             id: nextShiftId++,
-            employeeKey: empKey,
-            alliance: empObj.alliance,
-            group: empObj.group,
-            employeeName: empObj.name,
+            employeeKey: employeeKey,
+            alliance: employeeObj.alliance,
+            group: employeeObj.group,
+            employeeName: employeeObj.name,
             date: date,
             startTime: start,
             endTime: end,
@@ -506,33 +576,27 @@
         return true;
     }
     
-    function updateShiftStatus(shiftId, newStatus) {
+    function chiefUpdateStatus(shiftId, newStatus) {
         const shift = allShifts.find(s => s.id === shiftId);
-        if (shift && currentUser.role === 'chief') {
+        if (shift) {
             shift.status = newStatus;
             saveShifts();
-            renderTables();
+            chiefRenderTables();
             showToast(newStatus === 'approved' ? '✅ Смена согласована' : '⚠️ Отмечена как неявка');
         }
     }
     
-    function deleteShift(shiftId) {
+    function chiefDeleteShift(shiftId) {
         if (!confirm('Удалить смену?')) return;
         allShifts = allShifts.filter(s => s.id !== shiftId);
         saveShifts();
-        renderTables();
+        chiefRenderTables();
         showToast('Смена удалена');
     }
     
-    function renderTables() {
-        let employees = currentUser.role === 'chief' ? getAllEmployees() : [{ 
-            key: `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`,
-            alliance: currentUser.alliance,
-            group: currentUser.group,
-            name: currentUser.fullName
-        }];
-        
-        let filter = document.getElementById('statusFilter')?.value || 'all';
+    function chiefRenderTables() {
+        let employees = getAllEmployees();
+        let filter = document.getElementById('chiefStatusFilter')?.value || 'all';
         let html = '';
         
         for (let emp of employees) {
@@ -561,27 +625,21 @@
                 let statusClass = sh.status === 'planned' ? 'status-planned' : (sh.status === 'approved' ? 'status-approved' : 'status-no-show');
                 
                 html += `<tr>
-                            <td>${sh.date}</td>
-                            <td>${sh.startTime}</td>
-                            <td>${sh.endTime}</td>
-                            <td><span class="${statusClass}">${statusText}</span></td>
-                            <td class="action-group">`;
+                             <td>${sh.date}</td>
+                             <td>${sh.startTime}</td>
+                             <td>${sh.endTime}</td>
+                             <td><span class="${statusClass}">${statusText}</span></td>
+                             <td class="action-group">`;
                 
-                if (currentUser.role === 'chief') {
-                    if (sh.status !== 'approved') {
-                        html += `<button class="btn-primary approve-btn" data-id="${sh.id}" style="padding:4px 14px;">✔️ Согласовать</button>`;
-                    }
-                    if (sh.status !== 'no-show') {
-                        html += `<button class="btn-danger noshow-btn" data-id="${sh.id}" style="padding:4px 14px;">⚠️ Неявка</button>`;
-                    }
-                    html += `<button class="btn-outline delete-btn" data-id="${sh.id}" style="padding:4px 14px;">🗑️</button>`;
-                } else {
-                    if (sh.status === 'planned') {
-                        html += `<button class="btn-outline delete-btn" data-id="${sh.id}" style="padding:4px 14px;">Отменить</button>`;
-                    } else {
-                        html += `<span style="color:#aaa;">—</span>`;
-                    }
+                // Кнопки только для руководителя
+                if (sh.status !== 'approved') {
+                    html += `<button class="btn-primary chief-approve-btn" data-id="${sh.id}" style="padding:4px 14px;">✔️ Согласовать</button>`;
                 }
+                if (sh.status !== 'no-show') {
+                    html += `<button class="btn-danger chief-noshow-btn" data-id="${sh.id}" style="padding:4px 14px;">⚠️ Неявка</button>`;
+                }
+                html += `<button class="btn-outline chief-delete-btn" data-id="${sh.id}" style="padding:4px 14px;">🗑️ Удалить</button>`;
+                
                 html += `</td></tr>`;
             }
             
@@ -590,131 +648,65 @@
             html += `</tbody></table>`;
         }
         
-        document.getElementById('employeesTableContainer').innerHTML = html || '<p style="color:white;">Нет данных</p>';
-        attachEvents();
+        document.getElementById('chiefEmployeesTableContainer').innerHTML = html || '<p style="color:white;">Нет данных</p>';
         
         // Сводка
-        let visible = currentUser.role === 'chief' ? allShifts : allShifts.filter(s => s.employeeKey === `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`);
-        let approved = visible.filter(s => s.status === 'approved').length;
-        let planned = visible.filter(s => s.status === 'planned').length;
-        let noshow = visible.filter(s => s.status === 'no-show').length;
-        let percent = visible.length ? ((approved / visible.length) * 100).toFixed(1) : 0;
+        let approved = allShifts.filter(s => s.status === 'approved').length;
+        let planned = allShifts.filter(s => s.status === 'planned').length;
+        let noshow = allShifts.filter(s => s.status === 'no-show').length;
+        let percent = allShifts.length ? ((approved / allShifts.length) * 100).toFixed(1) : 0;
         
-        document.getElementById('summaryStats').innerHTML = `<div style="background:#111; border-left:4px solid #2b7e3a; padding:14px; border-radius:20px;">
-            🎯 <strong>Выполнение плана:</strong> ${percent}%<br>
-            ✅ Согласовано: ${approved} &nbsp;|&nbsp; 📋 Ожидают: ${planned} &nbsp;|&nbsp; ❌ Неявки: ${noshow}
+        document.getElementById('chiefSummaryStats').innerHTML = `<div style="background:#111; border-left:4px solid #2b7e3a; padding:14px; border-radius:20px;">
+            🎯 <strong>Выполнение плана по подразделению:</strong> ${percent}%<br>
+            ✅ Согласовано: ${approved} &nbsp;|&nbsp; 📋 Ожидают: ${planned} &nbsp;|&nbsp; ❌ Неявки: ${noshow}<br>
+            📊 Всего смен: ${allShifts.length}
         </div>`;
-    }
-    
-    function attachEvents() {
-        document.querySelectorAll('.approve-btn').forEach(btn => {
-            btn.onclick = () => updateShiftStatus(parseInt(btn.dataset.id), 'approved');
-        });
-        document.querySelectorAll('.noshow-btn').forEach(btn => {
-            btn.onclick = () => { if (confirm('Отметить неявку?')) updateShiftStatus(parseInt(btn.dataset.id), 'no-show'); };
-        });
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.onclick = () => deleteShift(parseInt(btn.dataset.id));
-        });
-    }
-    
-    function generateDates() {
-        let sel = document.getElementById('shiftDate');
-        let today = new Date(); today.setHours(0,0,0,0);
-        sel.innerHTML = '';
-        for (let i = 0; i < 14; i++) {
-            let d = new Date(today); d.setDate(today.getDate() + i);
-            let val = d.toISOString().slice(0,10);
-            let weekdays = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-            sel.appendChild(new Option(`${val} (${weekdays[d.getDay()]})`, val));
-        }
-    }
-    
-    function populateTimes() {
-        let startSel = document.getElementById('shiftStart'), endSel = document.getElementById('shiftEnd');
-        startSel.innerHTML = '';
-        endSel.innerHTML = '<option value="">-- Конец --</option>';
-        for (let h = 6; h < 24; h++) {
-            for (let m of [0, 15, 30, 45]) {
-                let val = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
-                startSel.appendChild(new Option(val, val));
-            }
-        }
-        for (let h = 0; h < 25; h++) {
-            for (let m of [0, 15, 30, 45]) {
-                if (h === 24 && m > 0) continue;
-                let val = `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}`;
-                endSel.appendChild(new Option(val, val));
-            }
-        }
-    }
-    
-    function setupAddForRole() {
-        let container = document.getElementById('scheduleFormArea');
-        if (currentUser.role === 'chief') {
-            let employees = getAllEmployees();
-            let html = `<label style="color:#ccc;">👥 Сотрудник</label><select id="targetEmployeeSelect" style="width:100%; margin-bottom:12px;">`;
-            employees.forEach(e => html += `<option value="${e.key}">${e.name} (${e.group})</option>`);
-            html += `</select>`;
-            container.innerHTML = html;
-        } else {
-            container.innerHTML = `<p><strong>${currentUser.fullName}</strong> (${currentUser.group})</p>`;
-        }
         
-        let btn = document.getElementById('addShiftBtn');
-        let newBtn = btn.cloneNode(true);
-        btn.parentNode.replaceChild(newBtn, btn);
-        newBtn.onclick = () => {
-            let targetEmp, targetKey;
-            if (currentUser.role === 'chief') {
-                let sel = document.getElementById('targetEmployeeSelect');
-                targetKey = sel.value;
-                targetEmp = getAllEmployees().find(e => e.key === targetKey);
-            } else {
-                targetEmp = { key: `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`, alliance: currentUser.alliance, group: currentUser.group, name: currentUser.fullName };
-                targetKey = targetEmp.key;
-            }
-            let date = document.getElementById('shiftDate').value;
-            let start = document.getElementById('shiftStart').value;
-            let end = document.getElementById('shiftEnd').value;
-            if (!date || !start || !end) { alert('Заполните дату и время'); return; }
-            if (addShift(targetKey, targetEmp, date, start, end)) {
-                renderTables();
-                document.getElementById('shiftStart').value = '';
-                document.getElementById('shiftEnd').value = '';
+        // Назначить события
+        document.querySelectorAll('.chief-approve-btn').forEach(btn => {
+            btn.onclick = () => chiefUpdateStatus(parseInt(btn.dataset.id), 'approved');
+        });
+        document.querySelectorAll('.chief-noshow-btn').forEach(btn => {
+            btn.onclick = () => { if (confirm('Отметить как неявку?')) chiefUpdateStatus(parseInt(btn.dataset.id), 'no-show'); };
+        });
+        document.querySelectorAll('.chief-delete-btn').forEach(btn => {
+            btn.onclick = () => chiefDeleteShift(parseInt(btn.dataset.id));
+        });
+    }
+    
+    function initChief() {
+        document.getElementById('chiefUserName').innerText = currentUser.fullName;
+        generateDates('chiefShiftDate');
+        populateTimes('chiefShiftStart', 'chiefShiftEnd');
+        
+        // Заполнить список сотрудников
+        let employees = getAllEmployees();
+        let select = document.getElementById('chiefTargetEmployee');
+        select.innerHTML = '';
+        employees.forEach(e => {
+            select.appendChild(new Option(`${e.name} (${e.group})`, e.key));
+        });
+        
+        chiefRenderTables();
+        
+        document.getElementById('chiefRefreshBtn').onclick = () => chiefRenderTables();
+        document.getElementById('chiefStatusFilter').onchange = () => chiefRenderTables();
+        document.getElementById('chiefAddShiftBtn').onclick = () => {
+            let empKey = document.getElementById('chiefTargetEmployee').value;
+            let emp = getAllEmployees().find(e => e.key === empKey);
+            let date = document.getElementById('chiefShiftDate').value;
+            let start = document.getElementById('chiefShiftStart').value;
+            let end = document.getElementById('chiefShiftEnd').value;
+            if (!date || !start || !end) { alert('Заполните поля'); return; }
+            if (chiefAddShift(empKey, emp, date, start, end)) {
+                chiefRenderTables();
+                document.getElementById('chiefShiftStart').value = '';
+                document.getElementById('chiefShiftEnd').value = '';
             }
         };
-    }
-    
-    function switchRole(role) {
-        if (currentUser.role === role) return;
-        currentUser.role = role;
-        document.querySelectorAll('.role-btn').forEach(b => {
-            if (b.dataset.role === role) b.classList.add('active');
-            else b.classList.remove('active');
-        });
-        setupAddForRole();
-        renderTables();
-    }
-    
-    function initAfterLogin() {
-        document.getElementById('loginPanel').classList.add('hidden');
-        document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('userNameDisplay').innerText = currentUser.fullName;
-        let roleSpan = document.getElementById('userRoleBadge');
-        roleSpan.innerText = currentUser.role === 'chief' ? 'Руководитель' : 'Сотрудник';
-        
-        generateDates();
-        populateTimes();
-        setupAddForRole();
-        renderTables();
-        
-        document.getElementById('refreshBtn').onclick = () => renderTables();
-        document.getElementById('statusFilter').onchange = () => renderTables();
-        document.getElementById('exportCSVBtn').onclick = () => {
-            let shifts = currentUser.role === 'chief' ? allShifts : allShifts.filter(s => s.employeeKey === `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`);
+        document.getElementById('chiefExportCSVBtn').onclick = () => {
             let rows = [["Сотрудник","Альянс","Группа","Дата","Начало","Конец","Статус"]];
-            shifts.forEach(s => {
+            allShifts.forEach(s => {
                 let statusTxt = s.status === 'planned' ? 'Запланирована' : (s.status === 'approved' ? 'Согласована' : 'Неявка');
                 rows.push([s.employeeName, s.alliance, s.group, s.date, s.startTime, s.endTime, statusTxt]);
             });
@@ -722,17 +714,159 @@
             let blob = new Blob(["\uFEFF" + csv], {type: "text/csv"});
             let a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `shifts_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `shifts_all_${new Date().toISOString().slice(0,10)}.csv`;
             a.click();
             URL.revokeObjectURL(a.href);
         };
+    }
+    
+    // ========== СОТРУДНИК ==========
+    function employeeAddShift(date, start, end) {
+        let empKey = `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`;
+        let empObj = { alliance: currentUser.alliance, group: currentUser.group, name: currentUser.fullName };
+        let valid = isValidShift(empKey, date, start, end);
+        if (!valid.ok) { alert(valid.reason); return false; }
+        if (getConsecutive(empKey, date) > 6) { alert('❌ Более 6 смен подряд'); return false; }
+        allShifts.push({
+            id: nextShiftId++,
+            employeeKey: empKey,
+            alliance: currentUser.alliance,
+            group: currentUser.group,
+            employeeName: currentUser.fullName,
+            date: date,
+            startTime: start,
+            endTime: end,
+            status: 'planned'
+        });
+        saveShifts();
+        showToast('Смена добавлена');
+        return true;
+    }
+    
+    function employeeDeleteShift(shiftId) {
+        const shift = allShifts.find(s => s.id === shiftId);
+        if (shift && shift.status === 'planned') {
+            if (confirm('Удалить эту смену?')) {
+                allShifts = allShifts.filter(s => s.id !== shiftId);
+                saveShifts();
+                employeeRenderTables();
+                showToast('Смена удалена');
+            }
+        } else {
+            alert('Можно удалять только запланированные смены');
+        }
+    }
+    
+    function employeeRenderTables() {
+        let empKey = `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`;
+        let filter = document.getElementById('employeeStatusFilter')?.value || 'all';
+        let shifts = allShifts.filter(s => s.employeeKey === empKey);
         
-        document.querySelectorAll('.role-btn').forEach(btn => {
-            btn.onclick = () => switchRole(btn.dataset.role);
+        if (filter !== 'all') {
+            if (filter === 'planned') shifts = shifts.filter(s => s.status === 'planned');
+            else if (filter === 'approved') shifts = shifts.filter(s => s.status === 'approved');
+            else if (filter === 'noshow') shifts = shifts.filter(s => s.status === 'no-show');
+        }
+        shifts.sort((a, b) => a.date.localeCompare(b.date));
+        
+        let total = shifts.length;
+        let week = shifts.filter(s => { let d = new Date(s.date).getDay(); return d >= 1 && d <= 5; }).length;
+        let perc = total ? ((week / total) * 100).toFixed(1) : 0;
+        let maxSeq = getConsecutive(empKey);
+        
+        let html = `<table><caption style="text-align:left; font-weight:700; margin-bottom:8px; color:#ddd;">Мои смены</caption>
+                    <thead><th>Дата</th><th>Начало</th><th>Конец</th><th>Статус</th><th>Действия</th></thead><tbody>`;
+        
+        if (!shifts.length) {
+            html += `<tr><td colspan="5">Нет смен</td></tr>`;
+        }
+        
+        for (let sh of shifts) {
+            let statusText = sh.status === 'planned' ? '📋 Запланирована' : (sh.status === 'approved' ? '✅ Согласована' : '❌ Неявка');
+            let statusClass = sh.status === 'planned' ? 'status-planned' : (sh.status === 'approved' ? 'status-approved' : 'status-no-show');
+            
+            html += `<tr>
+                          <td>${sh.date}</td>
+                          <td>${sh.startTime}</td>
+                          <td>${sh.endTime}</td>
+                          <td><span class="${statusClass}">${statusText}</span></td>
+                          <td class="action-group">`;
+            
+            if (sh.status === 'planned') {
+                html += `<button class="btn-outline employee-delete-btn" data-id="${sh.id}" style="padding:4px 14px;">🗑️ Отменить</button>`;
+            } else {
+                html += `<span style="color:#aaa;">—</span>`;
+            }
+            html += `</td></tr>`;
+        }
+        
+        html += `<tr style="background:#0a0a0a;"><td colspan="2"><strong>📈 Показатели</strong></td>
+                <td colspan="3">Будни: ${perc}% | Выходные: ${(100-perc).toFixed(1)}% | Макс. подряд: ${maxSeq}/6</td></tr>`;
+        html += `</tbody></table>`;
+        
+        document.getElementById('employeeShiftsTableContainer').innerHTML = html;
+        
+        // Сводка сотрудника
+        let approved = shifts.filter(s => s.status === 'approved').length;
+        let planned = shifts.filter(s => s.status === 'planned').length;
+        let noshow = shifts.filter(s => s.status === 'no-show').length;
+        let percent = shifts.length ? ((approved / shifts.length) * 100).toFixed(1) : 0;
+        
+        document.getElementById('employeeSummaryStats').innerHTML = `<div style="background:#111; border-left:4px solid #2b7e3a; padding:14px; border-radius:20px;">
+            🎯 <strong>Моё выполнение плана:</strong> ${percent}%<br>
+            ✅ Согласовано: ${approved} &nbsp;|&nbsp; 📋 Ожидают: ${planned} &nbsp;|&nbsp; ❌ Неявки: ${noshow}
+        </div>`;
+        
+        document.querySelectorAll('.employee-delete-btn').forEach(btn => {
+            btn.onclick = () => employeeDeleteShift(parseInt(btn.dataset.id));
         });
     }
     
-    // Регистрация и вход
+    function initEmployee() {
+        document.getElementById('employeeUserName').innerText = currentUser.fullName;
+        generateDates('employeeShiftDate');
+        populateTimes('employeeShiftStart', 'employeeShiftEnd');
+        employeeRenderTables();
+        
+        document.getElementById('employeeRefreshBtn').onclick = () => employeeRenderTables();
+        document.getElementById('employeeStatusFilter').onchange = () => employeeRenderTables();
+        document.getElementById('employeeAddShiftBtn').onclick = () => {
+            let date = document.getElementById('employeeShiftDate').value;
+            let start = document.getElementById('employeeShiftStart').value;
+            let end = document.getElementById('employeeShiftEnd').value;
+            if (!date || !start || !end) { alert('Заполните поля'); return; }
+            if (employeeAddShift(date, start, end)) {
+                employeeRenderTables();
+                document.getElementById('employeeShiftStart').value = '';
+                document.getElementById('employeeShiftEnd').value = '';
+            }
+        };
+        document.getElementById('employeeExportCSVBtn').onclick = () => {
+            let empKey = `${currentUser.alliance}|${currentUser.group}|${currentUser.fullName}`;
+            let shifts = allShifts.filter(s => s.employeeKey === empKey);
+            let rows = [["Дата","Начало","Конец","Статус"]];
+            shifts.forEach(s => {
+                let statusTxt = s.status === 'planned' ? 'Запланирована' : (s.status === 'approved' ? 'Согласована' : 'Неявка');
+                rows.push([s.date, s.startTime, s.endTime, statusTxt]);
+            });
+            let csv = rows.map(r => r.map(c => `"${c}"`).join(";")).join("\n");
+            let blob = new Blob(["\uFEFF" + csv], {type: "text/csv"});
+            let a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `my_shifts_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        };
+    }
+    
+    // ========== АВТОРИЗАЦИЯ ==========
+    function updateGroupSelect() {
+        let alliance = document.getElementById('regAlliance').value;
+        let groupSel = document.getElementById('regGroup');
+        groupSel.innerHTML = '<option value="">-- Группа --</option>';
+        (groupsMap[alliance] || []).forEach(g => groupSel.appendChild(new Option(g, g)));
+    }
+    
     document.getElementById('doLoginBtn').onclick = () => {
         let login = document.getElementById('loginUsername').value.trim();
         let pwd = document.getElementById('loginPassword').value.trim();
@@ -742,7 +876,17 @@
             return;
         }
         currentUser = { ...user };
-        initAfterLogin();
+        
+        if (currentUser.role === 'chief') {
+            document.getElementById('chiefApp').classList.remove('hidden');
+            document.getElementById('employeeApp').classList.add('hidden');
+            initChief();
+        } else {
+            document.getElementById('chiefApp').classList.add('hidden');
+            document.getElementById('employeeApp').classList.remove('hidden');
+            initEmployee();
+        }
+        document.getElementById('loginPanel').classList.add('hidden');
     };
     
     document.getElementById('doRegisterBtn').onclick = () => {
@@ -777,15 +921,8 @@
         document.getElementById('registerTabBtn').click();
     };
     
-    function updateGroupSelect() {
-        let alliance = document.getElementById('regAlliance').value;
-        let groupSel = document.getElementById('regGroup');
-        groupSel.innerHTML = '<option value="">-- Группа --</option>';
-        (groupsMap[alliance] || []).forEach(g => groupSel.appendChild(new Option(g, g)));
-    }
-    
-    document.getElementById('regAlliance').addEventListener('change', updateGroupSelect);
-    document.getElementById('regRole').addEventListener('change', updateGroupSelect);
+    document.getElementById('logoutBtnChief').onclick = () => location.reload();
+    document.getElementById('logoutBtnEmployee').onclick = () => location.reload();
     
     document.getElementById('loginTabBtn').onclick = () => {
         document.getElementById('loginForm').classList.remove('hidden');
@@ -800,9 +937,10 @@
         document.getElementById('loginTabBtn').classList.remove('active');
         updateGroupSelect();
     };
-    document.getElementById('logoutBtn').onclick = () => location.reload();
     
-    // Инициализация
+    document.getElementById('regAlliance').addEventListener('change', updateGroupSelect);
+    document.getElementById('regRole').addEventListener('change', updateGroupSelect);
+    
     loadData();
     updateGroupSelect();
 </script>
